@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaMotriz - Monitoreo, IoT y Energía Eólica</title>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --brand-celeste: #63d7ff;
+            --brand-green-dark: #006838;
+            --brand-green-lima: #8dc73c;
+            --bg-light: #f4f7f6;
+            --text-color: #2b2b2b;
+            --white: #ffffff;
+            --card-border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'League Spartan', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4, .brand-name, .hero h1, .section-title {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Navegación Principal */
+        nav {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            color: var(--brand-green-dark);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a.active, .nav-links a:hover {
+            color: var(--brand-green-dark);
+            background: #e6f4ea;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Hero Header */
+        .hero {
+            background: linear-gradient(135deg, rgba(0,104,56,0.95), rgba(141,199,60,0.85)), url('https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=1350&q=80') center/cover;
+            color: var(--white);
+            padding: 3.5rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--brand-celeste);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 1.5rem auto;
+            font-weight: 300;
+        }
+
+        .tagline {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--brand-green-dark);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--brand-green-dark);
+        }
+
+        .card p {
+            text-transform: none;
+            color: #334155;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* -------------------------------------------------------------
+           SECCIÓN DASHBOARD IoT COMPLETA (Con Eólica)
+        ------------------------------------------------------------- */
+        .dash-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .dash-header h3 {
+            font-size: 1.4rem;
+            color: #1e293b;
+        }
+
+        .dash-header p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .dash-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .pulse-dot {
+            height: 8px;
+            width: 8px;
+            background-color: var(--brand-green-dark);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(0, 104, 56, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 104, 56, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(0, 104, 56, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 104, 56, 0); }
+        }
+
+        /* Tarjetas de Métricas Principales (Incluyendo Eólica y Solar Híbrida) */
+        .metrics-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.2rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eaf2ed;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .metric-card.celeste { background: #f0f9ff; }
+        .metric-card.verde-claro { background: #f0fdf4; }
+        .metric-card.verde-hoja { background: #f4fbf7; }
+        .metric-card.morado-suave { background: #f8f7ff; }
+        .metric-card.amarillo-suave { background: #fefce8; }
+        .metric-card.azul-eolico { background: #eff6ff; }
+
+        .metric-info h5 {
+            font-size: 0.72rem;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .metric-val span {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-left: 2px;
+        }
+
+        .metric-sub {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .metric-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .icon-celeste { background: #e0f2fe; color: #0284c7; }
+        .icon-verde { background: #dcfce7; color: #16a34a; }
+        .icon-hoja { background: #d1fae5; color: #059669; }
+        .icon-morado { background: #ede9fe; color: #7c3aed; }
+        .icon-amarillo { background: #fef08a; color: #ca8a04; }
+        .icon-eolico { background: #dbeafe; color: #1d4ed8; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--brand-green-dark);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Layout Grid del Dashboard */
+        .dashboard-main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-box {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .box-title {
+            font-size: 1.05rem;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .box-subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 1.2rem;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 180px;
+            position: relative;
+        }
+
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 140px;
+            padding-top: 20px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .bar {
+            width: 28px;
+            background: var(--brand-celeste);
+            border-radius: 6px 6px 0 0;
+            transition: height 0.3s;
+        }
+
+        .bar-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .dot-green { background: #22c55e; }
+        .dot-blue { background: #38bdf8; }
+        .dot-purple { background: #a855f7; }
+        .dot-wind { background: #1d4ed8; }
+
+        .activity-content strong {
+            color: #0f172a;
+        }
+
+        .activity-content p {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 1px;
+            text-transform: none;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: none;
+        }
+
+        .info-list li::before {
+            content: "•";
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+
+        .parcela-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag-pill {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Tabla Financiera */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: none;
+        }
+
+        th {
+            background-color: #0f172a;
+            color: var(--brand-celeste);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8faf9;
+        }
+
+        footer { 
+            background-color: var(--brand-green-dark); 
+            color: var(--white); 
+            text-align: center; 
+            padding: 1.8rem; 
+            margin-top: 3rem; 
+            font-size: 0.85rem;
+        }
+
+        footer p {
+            text-transform: none;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-container">
+            <svg class="logo-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="40" r="28" fill="#63d7ff" />
+                <path d="M 48,82 C 20,70 12,35 22,25 C 38,48 47,65 48,82 Z" fill="#8dc73c" />
+                <path d="M 50,95 C 50,60 62,35 90,20 C 100,55 70,85 50,95 Z" fill="#006838" />
+            </svg>
+            <span class="brand-name">AquaMotriz</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#problema">Problema</a></li>
+            <li><a href="#solucion">Solución</a></li>
+            <li><a href="#dashboard" class="active">IoT / Eólica</a></li>
+            <li><a href="#viabilidad">Viabilidad</a></li>
+            <li><a href="#descartadas">Descartadas</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <h1>AQUAMOTRIZ</h1>
+        <p>Estaciones Agrohídricas Eficientes Mediante Motores Recuperados y Energía Híbrida (Solar-Eólica)</p>
+        <div class="tagline">"De residuo a recurso, del campo al futuro."</div>
+    </header>
+
+    <main class="container">
+
+        <!-- 1. PLANTEAMIENTO DEL PROBLEMA (COMPLETO) -->
+        <section id="problema">
+            <h2 class="section-title">1. Planteamiento del Problema</h2>
+            <div class="card">
+                <p>En comunidades rurales de América Latina, pequeños productores hortícolas necesitan regar sus cultivos de forma oportuna, pero el costo de bombas, energía y sistemas de riego limita su acceso a soluciones adecuadas. Según la FAO (2025), el 74 % de los países analizados de la región presenta una alta exposición a fenómenos meteorológicos extremos, que amenazan la producción agrícola.</p>
+                <p>Al mismo tiempo, lavadoras, caminadoras, ventiladores y otros electrodomésticos se desechan sin separar ni evaluar sus motores y componentes durables. Según datos de la ONU publicados en 2025, solo el 2,7 % de los residuos electrónicos de América Latina y el Caribe fue documentado como recolectado y reciclado formalmente en 2022.</p>
+                <p>El problema central es la desconexión entre componentes que podrían recuperarse y productores que necesitan tecnología hídrica asequible y reparable. No todo motor sirve para cualquier bomba: la compatibilidad, el estado eléctrico y la disponibilidad de repuestos deben comprobarse antes de utilizarlo. El proyecto busca cerrar esa brecha con una solución piloto, segura y evaluable, que convierta recursos recuperables en capacidad productiva local.</p>
+            </div>
+        </section>
+
+        <!-- 2. SOLUCIÓN -->
+        <section id="solucion">
+            <h2 class="section-title">2. Descripción de la Solución</h2>
+            <div class="card">
+                <p>La propuesta consiste en desarrollar estaciones agrohídricas eficientes de bajo costo, recuperando y adaptando motores eléctricos de electrodomésticos en desuso para apoyar el bombeo y riego de pequeños productores hortícolas.</p>
+                <p>El proceso incluye evaluar, clasificar y acondicionar motores según su estado y capacidad, incorporando controles eléctricos, protecciones de seguridad y generación híbrida con energía solar y eólica de baja potencia. Cada estación se adapta a las necesidades de riego, priorizando eficiencia energética, mantenimiento sencillo y accesibilidad económica.</p>
+            </div>
+        </section>
+
+        <!-- 3. DASHBOARD IoT (CON ENERGÍA EÓLICA Y SOLAR) -->
+        <section id="dashboard" style="margin-top: 3rem;">
+            <div class="dash-header">
+                <h3>Monitoreo, Arquitectura y Telemetría Híbrida (Solar - Eólica)</h3>
+                <p>Monitoreo en tiempo real de agua, riego, cultivo, motor recuperado, velocidad del viento y potencia energética.</p>
+                <div class="dash-date">
+                    <span class="pulse-dot"></span> 17 oct 2026
+                </div>
+            </div>
+
+            <!-- TARJETAS DE MÉTRICAS (Incluyendo Generación Eólica) -->
+            <div class="metrics-stack">
+                <div class="metric-card celeste">
+                    <div class="metric-info">
+                        <h5>NIVEL DEL TANQUE</h5>
+                        <div class="metric-val">68<span>%</span></div>
+                        <div class="metric-sub">510 de 750 litros</div>
+                    </div>
+                    <div class="metric-icon-box icon-celeste"><i class="fa-solid fa-droplet"></i></div>
+                </div>
+
+                <div class="metric-card verde-claro">
+                    <div class="metric-info">
+                        <h5>AGUA UTILIZADA</h5>
+                        <div class="metric-val">120<span>L</span></div>
+                        <div class="metric-sub">Hoy · en 2 ciclos de riego</div>
+                    </div>
+                    <div class="metric-icon-box icon-verde"><i class="fa-solid fa-faucet-drip"></i></div>
+                </div>
+
+                <div class="metric-card azul-eolico">
+                    <div class="metric-info">
+                        <h5>VELOCIDAD VIENTO</h5>
+                        <div class="metric-val">4.8<span>m/s</span></div>
+                        <div class="metric-sub">Generación Eólica Activa</div>
+                    </div>
+                    <div class="metric-icon-box icon-eolico"><i class="fa-solid fa-wind"></i></div>
+                </div>
+
+                <div class="metric-card amarillo-suave">
+                    <div class="metric-info">
+                        <h5>POTENCIA TOTAL</h5>
+                        <div class="metric-val">410<span>W</span></div>
+                        <div class="metric-sub">Solar (340W) + Eólica (70W)</div>
+                    </div>
+                    <div class="metric-icon-box icon-amarillo"><i class="fa-solid fa-bolt"></i></div>
+                </div>
+
+                <div class="metric-card morado-suave">
+                    <div class="metric-info">
+                        <h5>ESTADO MOTOR</h5>
+                        <div class="status-badge"><i class="fa-solid fa-circle-check"></i> Operativo</div>
+                        <div class="metric-sub">Bombeo sin anomalías</div>
+                    </div>
+                    <div class="metric-icon-box icon-morado"><i class="fa-solid fa-gears"></i></div>
+                </div>
+            </div>
+
+            <!-- LAYOUT PRINCIPAL: GRÁFICOS Y ACTIVIDAD RECIENTE -->
+            <div class="dashboard-main-grid">
+                
+                <!-- Columna Izquierda: Gráficos de Nivel y Humedad -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <!-- Gráfico Nivel del Tanque -->
+                    <div class="dashboard-box">
+                        <div class="box-title">Nivel del tanque</div>
+                        <div class="box-subtitle">Porcentaje de capacidad durante el día</div>
+                        <div class="chart-placeholder">
+                            <svg viewBox="0 0 500 120" style="width: 100%; height: 100%;">
+                                <defs>
+                                    <linearGradient id="gradCeleste" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4"/>
+                                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 0,80 Q 125,50 250,45 T 500,30 L 500,120 L 0,120 Z" fill="url(#gradCeleste)"/>
+                                <path d="M 0,80 Q 125,50 250,45 T 500,30" fill="none" stroke="#0284c7" stroke-width="3"/>
+                                <circle cx="250" cy="45" r="4" fill="#0284c7"/>
+                                <circle cx="400" cy="35" r="4" fill="#0284c7"/>
+                            </svg>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #94a3b8; margin-top: 5px;">
+                                <span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico Humedad del Suelo -->
+                    <div class="dashboard-box">
+                        <div class="box-title">Humedad del suelo</div>
+                        <div class="box-subtitle">Promedio diario del cultivo 1</div>
+                        <div class="chart-placeholder">
+                            <svg viewBox="0 0 500 100" style="width: 100%; height: 100%;">
+                                <path d="M 0,70 Q 100,30 200,40 T 400,35 T 500,45" fill="none" stroke="#a855f7" stroke-width="3"/>
+                                <circle cx="200" cy="40" r="4" fill="#a855f7"/>
+                                <circle cx="300" cy="50" r="4" fill="#a855f7"/>
+                                <circle cx="490" cy="45" r="4" fill="#a855f7"/>
+                            </svg>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 5px;">
+                                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Columna Derecha: Consumo Semanal y Actividad Reciente -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <!-- Barras de Agua Utilizada -->
+                    <div class="dashboard-box">
+                        <div class="box-title">Agua utilizada</div>
+                        <div class="box-subtitle">Litros por día · últimos 7 días</div>
+                        <div class="bar-chart-container">
+                            <div class="bar-group"><div class="bar" style="height: 40px;"></div><span class="bar-label">S</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 60px;"></div><span class="bar-label">D</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 85px;"></div><span class="bar-label">L</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 75px;"></div><span class="bar-label">M</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 65px;"></div><span class="bar-label">X</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 95px;"></div><span class="bar-label">J</span></div>
+                            <div class="bar-group"><div class="bar" style="height: 110px;"></div><span class="bar-label">V</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Actividad Reciente -->
+                    <div class="dashboard-box">
+                        <div class="box-title">Actividad reciente</div>
+                        <div class="box-subtitle">Lecturas y eventos registrados por la estación</div>
+                        
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-dot dot-green"></div>
+                                <div class="activity-content">
+                                    <strong>10:30 · Riego automático finalizado</strong>
+                                    <p>Cultivo 1 · 15 minutos · agua estimada: 60 L</p>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot dot-wind"></div>
+                                <div class="activity-content">
+                                    <strong>09:50 · Generación eólica estable (70W)</strong>
+                                    <p>Velocidad de viento: 4.8 m/s · Carga híbrida activa</p>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-dot dot-purple"></div>
+                                <div class="activity-content">
+                                    <strong>08:00 · Humedad del suelo registrada</strong>
+                                    <p>Cultivo 1 · 31%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FILA INFERIOR: HISTORIAL, PARCELA Y SECTORES -->
+            <div class="bottom-grid">
+                <div class="dashboard-box">
+                    <div class="box-title" style="margin-bottom: 0.8rem;">Historial</div>
+                    <ul class="info-list">
+                        <li>Riego programado 2 veces hoy</li>
+                        <li>Último reporte anemómetro: 08:45 AM</li>
+                        <li>Sistema híbrido (Solar-Eólica) sin fallos</li>
+                    </ul>
+                </div>
+
+                <div class="dashboard-box">
+                    <div class="box-title" style="margin-bottom: 0.8rem;">Parcela</div>
+                    <div class="parcela-badge">Parcela 03</div>
+                    <p style="font-size: 0.85rem; color: #64748b; text-transform:none;">Huertos de la zona norte · 320 m²</p>
+                </div>
+
+                <div class="dashboard-box">
+                    <div class="box-title" style="margin-bottom: 0.8rem;">Sectores IoT</div>
+                    <div class="tags-container">
+                        <span class="tag-pill">Hortalizas</span>
+                        <span class="tag-pill">Riego</span>
+                        <span class="tag-pill">Eólica 70W</span>
+                        <span class="tag-pill">Solar 340W</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. VIABILIDAD FINANCIERA -->
+        <section id="viabilidad" style="margin-top: 3rem;">
+            <h2 class="section-title">4. Viabilidad Financiera (MVP)</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th>C$ (Córdobas)</th>
+                            <th>US$ (Dólares)</th>
+                            <th>Lectura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Costo unitario del kit</strong></td>
+                            <td>C$12,589.20</td>
+                            <td>US$343.74</td>
+                            <td>Insumos, componentes y mano de obra.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precio de venta</strong></td>
+                            <td>C$18,000.00</td>
+                            <td>US$491.48</td>
+                            <td>Costo base + margen comercial.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VAN (5 años al 12%)</strong></td>
+                            <td>C$164,217.83</td>
+                            <td>US$4,483.85</td>
+                            <td>Valor neto generado por el modelo.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TIR</strong></td>
+                            <td colspan="2" style="text-align: center;"><strong>162.9%</strong></td>
+                            <td>Alta rentabilidad relativa.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Recuperación inversión</strong></td>
+                            <td colspan="2" style="text-align: center;"><strong>9.6 meses</strong></td>
+                            <td>Retorno en menos de 1 año.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 5. PROPUESTAS DESCARTADAS -->
+        <section id="descartadas" style="margin-top: 3rem;">
+            <h2 class="section-title">5. Propuestas Descartadas</h2>
+            <div class="card">
+                <ul class="info-list">
+                    <li><strong>Herramientas y talleres comunitarios:</strong> Variabilidad alta en diseño y requerimientos de seguridad.</li>
+                    <li><strong>Equipos para rehabilitación:</strong> Exigencia de normativas médicas estrictas fuera del enfoque inicial.</li>
+                    <li><strong>Fabricación de bombas sin beneficiario definido:</strong> Carecía de un canal de validación directa con usuarios.</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 <strong>AquaMotriz</strong> (Equipo: AVOCADO | Sede: Jaguares)</p>
+        <p style="margin-top: 4px; opacity: 0.8;">Desafío 01: Segunda vida de los motores eléctricos domésticos.</p>
+    </footer>
+
+</body>
+</html>
