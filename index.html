@@ -96,15 +96,33 @@
         .hero {
             background: radial-gradient(ellipse at 78% 48%, rgba(141,199,60,0.16), transparent 38%), linear-gradient(115deg, #e9f7fa 0%, #eef6ec 100%);
             color: #334e57;
+            width: calc(100% - 2rem);
+            max-width: 1400px;
+            margin: 1rem auto 0;
             padding: clamp(3rem, 7vw, 5.5rem) max(2rem, calc((100vw - 1150px) / 2));
             text-align: left;
             min-height: 430px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            box-shadow: 0 18px 50px rgba(32, 83, 70, 0.13);
+            animation: hero-panel-float 6s ease-in-out infinite;
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
             align-items: center;
             gap: 2rem;
         }
 
+        /* Reglas propias del panel para que funcionen al copiar este HTML. */
+        .aquamotriz-intro-panel {
+            border: 2px solid rgba(255, 255, 255, 0.95) !important;
+            border-radius: 30px !important;
+            box-shadow: 0 18px 50px rgba(32, 83, 70, 0.16) !important;
+            animation: aquamotriz-panel-movement 5s ease-in-out infinite !important;
+        }
+        @keyframes aquamotriz-panel-movement {
+            0%, 100% { transform: translateY(0); box-shadow: 0 18px 50px rgba(32, 83, 70, 0.16); }
+            50% { transform: translateY(-6px); box-shadow: 0 25px 58px rgba(32, 83, 70, 0.23); }
+        }
         .hero-copy { max-width: 650px; }
         .hero-badge {
             display: inline-block;
@@ -141,8 +159,19 @@
             line-height: 1.65;
         }
         .hero-visual { display: flex; justify-content: center; align-items: center; }
-        .hero-brand { display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .hero-logo { width: min(100%, 340px); height: auto; object-fit: contain; }
+        .hero-brand {
+            width: min(100%, 430px);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .hero-logo { width: min(100%, 370px); height: auto; object-fit: contain; }
+        @keyframes hero-panel-float {
+            0%, 100% { transform: translateY(0); box-shadow: 0 18px 50px rgba(32, 83, 70, 0.13); }
+            50% { transform: translateY(-5px); box-shadow: 0 24px 58px rgba(32, 83, 70, 0.18); }
+        }
         .hero-brand-name {
             margin-top: 0.2rem;
             color: var(--brand-green-dark);
@@ -538,7 +567,7 @@
         </ul>
     </nav>
 
-    <header class="hero">
+    <header class="hero aquamotriz-intro-panel">
         <div class="hero-copy">
             <span class="hero-badge">PROYECTO DE IMPACTO</span>
             <h1>AquaMotriz</h1>
