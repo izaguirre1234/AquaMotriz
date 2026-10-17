@@ -59,9 +59,10 @@
             gap: 12px;
         }
 
-        .logo-svg {
-            width: 40px;
+        .logo-image {
+            width: 48px;
             height: 40px;
+            object-fit: contain;
         }
 
         .brand-name {
@@ -102,7 +103,7 @@
         .hero h1 {
             font-size: 2.8rem;
             margin-bottom: 0.5rem;
-            color: var(--brand-celeste);
+            color: var(--white);
         }
 
         .hero p {
@@ -492,11 +493,7 @@
 
     <nav>
         <div class="logo-container">
-            <svg class="logo-svg" viewBox="0 0 100 100">
-                <circle cx="50" cy="40" r="28" fill="#63d7ff" />
-                <path d="M 48,82 C 20,70 12,35 22,25 C 38,48 47,65 48,82 Z" fill="#8dc73c" />
-                <path d="M 50,95 C 50,60 62,35 90,20 C 100,55 70,85 50,95 Z" fill="#006838" />
-            </svg>
+            <img class="logo-image" src="logo-aquamotriz.png" alt="Logo de AquaMotriz">
             <span class="brand-name">AquaMotriz</span>
         </div>
         <ul class="nav-links">
