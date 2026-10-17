@@ -6,6 +6,8 @@
     <title>AquaMotriz - Monitoreo, IoT y Energía Eólica</title>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -162,9 +164,7 @@
             margin-bottom: 0;
         }
 
-        /* -------------------------------------------------------------
-           SECCIÓN DASHBOARD IoT COMPLETA (Con Eólica)
-        ------------------------------------------------------------- */
+        /* Dashboard Header */
         .dash-header {
             margin-bottom: 1.5rem;
         }
@@ -205,7 +205,7 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 104, 56, 0); }
         }
 
-        /* Tarjetas de Métricas Principales (Incluyendo Eólica y Solar Híbrida) */
+        /* Tarjetas de Métricas */
         .metrics-stack {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -226,7 +226,6 @@
 
         .metric-card.celeste { background: #f0f9ff; }
         .metric-card.verde-claro { background: #f0fdf4; }
-        .metric-card.verde-hoja { background: #f4fbf7; }
         .metric-card.morado-suave { background: #f8f7ff; }
         .metric-card.amarillo-suave { background: #fefce8; }
         .metric-card.azul-eolico { background: #eff6ff; }
@@ -269,7 +268,6 @@
 
         .icon-celeste { background: #e0f2fe; color: #0284c7; }
         .icon-verde { background: #dcfce7; color: #16a34a; }
-        .icon-hoja { background: #d1fae5; color: #059669; }
         .icon-morado { background: #ede9fe; color: #7c3aed; }
         .icon-amarillo { background: #fef08a; color: #ca8a04; }
         .icon-eolico { background: #dbeafe; color: #1d4ed8; }
@@ -311,9 +309,9 @@
             margin-bottom: 1.2rem;
         }
 
-        .chart-placeholder {
+        .chart-wrapper {
             width: 100%;
-            height: 180px;
+            height: 190px;
             position: relative;
         }
 
@@ -505,6 +503,7 @@
             <li><a href="#problema">Problema</a></li>
             <li><a href="#solucion">Solución</a></li>
             <li><a href="#dashboard" class="active">IoT / Eólica</a></li>
+            <li><a href="#arquitectura-iot">Arquitectura</a></li>
             <li><a href="#viabilidad">Viabilidad</a></li>
             <li><a href="#descartadas">Descartadas</a></li>
         </ul>
@@ -518,13 +517,13 @@
 
     <main class="container">
 
-        <!-- 1. PLANTEAMIENTO DEL PROBLEMA (COMPLETO) -->
+        <!-- 1. PLANTEAMIENTO DEL PROBLEMA -->
         <section id="problema">
             <h2 class="section-title">1. Planteamiento del Problema</h2>
             <div class="card">
-                <p>En comunidades rurales de América Latina, pequeños productores hortícolas necesitan regar sus cultivos de forma oportuna, pero el costo de bombas, energía y sistemas de riego limita su acceso a soluciones adecuadas. Según la FAO (2025), el 74 % de los países analizados de la región presenta una alta exposición a fenómenos meteorológicos extremos, que amenazan la producción agrícola.</p>
-                <p>Al mismo tiempo, lavadoras, caminadoras, ventiladores y otros electrodomésticos se desechan sin separar ni evaluar sus motores y componentes durables. Según datos de la ONU publicados en 2025, solo el 2,7 % de los residuos electrónicos de América Latina y el Caribe fue documentado como recolectado y reciclado formalmente en 2022.</p>
-                <p>El problema central es la desconexión entre componentes que podrían recuperarse y productores que necesitan tecnología hídrica asequible y reparable. No todo motor sirve para cualquier bomba: la compatibilidad, el estado eléctrico y la disponibilidad de repuestos deben comprobarse antes de utilizarlo. El proyecto busca cerrar esa brecha con una solución piloto, segura y evaluable, que convierta recursos recuperables en capacidad productiva local.</p>
+                <p>En comunidades rurales de América Latina, pequeños productores hortícolas necesitan regar sus cultivos de forma oportuna, pero el costo de bombas, energía y sistemas de riego limita su acceso a soluciones adecuadas. Según la FAO (2025), el 74 % de los países analizados de la región presenta una alta exposición a fenómenos meteorológicos extremos, que amenazan la producción agrícola[cite: 1].</p>
+                <p>Al mismo tiempo, lavadoras, caminadoras, ventiladores y otros electrodomésticos se desechan sin separar ni evaluar sus motores y componentes durables. Según datos de la ONU publicados en 2025, solo el 2,7 % de los residuos electrónicos de América Latina y el Caribe fue documentado como recolectado y reciclado formalmente en 2022[cite: 1].</p>
+                <p>El problema central es la desconexión entre componentes que podrían recuperarse y productores que necesitan tecnología hídrica asequible y reparable. No todo motor sirve para cualquier bomba: la compatibilidad, el estado eléctrico y la disponibilidad de repuestos deben comprobarse antes de utilizarlo. El proyecto busca cerrar esa brecha con una solución piloto, segura y evaluable, que convierta recursos recuperables en capacidad productiva local[cite: 1].</p>
             </div>
         </section>
 
@@ -532,8 +531,8 @@
         <section id="solucion">
             <h2 class="section-title">2. Descripción de la Solución</h2>
             <div class="card">
-                <p>La propuesta consiste en desarrollar estaciones agrohídricas eficientes de bajo costo, recuperando y adaptando motores eléctricos de electrodomésticos en desuso para apoyar el bombeo y riego de pequeños productores hortícolas.</p>
-                <p>El proceso incluye evaluar, clasificar y acondicionar motores según su estado y capacidad, incorporando controles eléctricos, protecciones de seguridad y generación híbrida con energía solar y eólica de baja potencia. Cada estación se adapta a las necesidades de riego, priorizando eficiencia energética, mantenimiento sencillo y accesibilidad económica.</p>
+                <p>La propuesta consiste en desarrollar estaciones agrohídricas eficientes de bajo costo, recuperando y adaptando motores eléctricos de electrodomésticos en desuso para apoyar el bombeo y riego de pequeños productores hortícolas[cite: 1].</p>
+                <p>El proceso incluye evaluar, clasificar y acondicionar motores según su estado y capacidad, incorporando controles eléctricos, protecciones de seguridad y generación híbrida con energía solar y eólica de baja potencia. Cada estación se adapta a las necesidades de riego, priorizando eficiencia energética, mantenimiento sencillo y accesibilidad económica[cite: 1].</p>
             </div>
         </section>
 
@@ -541,13 +540,13 @@
         <section id="dashboard" style="margin-top: 3rem;">
             <div class="dash-header">
                 <h3>Monitoreo, Arquitectura y Telemetría Híbrida (Solar - Eólica)</h3>
-                <p>Monitoreo en tiempo real de agua, riego, cultivo, motor recuperado, velocidad del viento y potencia energética.</p>
+                <p>Monitoreo en tiempo real de agua, riego, cultivo, motor recuperado, velocidad del viento y potencia energética[cite: 1].</p>
                 <div class="dash-date">
                     <span class="pulse-dot"></span> 17 oct 2026
                 </div>
             </div>
 
-            <!-- TARJETAS DE MÉTRICAS (Incluyendo Generación Eólica) -->
+            <!-- TARJETAS DE MÉTRICAS -->
             <div class="metrics-stack">
                 <div class="metric-card celeste">
                     <div class="metric-info">
@@ -595,49 +594,27 @@
                 </div>
             </div>
 
-            <!-- LAYOUT PRINCIPAL: GRÁFICOS Y ACTIVIDAD RECIENTE -->
+            <!-- LAYOUT PRINCIPAL: GRÁFICOS INTERACTIVOS -->
             <div class="dashboard-main-grid">
                 
-                <!-- Columna Izquierda: Gráficos de Nivel y Humedad -->
+                <!-- Columna Izquierda: Gráficos Interactivos (Tanque en Litros y Humedad) -->
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                     
-                    <!-- Gráfico Nivel del Tanque -->
+                    <!-- Gráfico Nivel del Tanque (Litros) -->
                     <div class="dashboard-box">
-                        <div class="box-title">Nivel del tanque</div>
-                        <div class="box-subtitle">Porcentaje de capacidad durante el día</div>
-                        <div class="chart-placeholder">
-                            <svg viewBox="0 0 500 120" style="width: 100%; height: 100%;">
-                                <defs>
-                                    <linearGradient id="gradCeleste" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4"/>
-                                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M 0,80 Q 125,50 250,45 T 500,30 L 500,120 L 0,120 Z" fill="url(#gradCeleste)"/>
-                                <path d="M 0,80 Q 125,50 250,45 T 500,30" fill="none" stroke="#0284c7" stroke-width="3"/>
-                                <circle cx="250" cy="45" r="4" fill="#0284c7"/>
-                                <circle cx="400" cy="35" r="4" fill="#0284c7"/>
-                            </svg>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #94a3b8; margin-top: 5px;">
-                                <span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span>
-                            </div>
+                        <div class="box-title">Nivel del tanque (Litros)</div>
+                        <div class="box-subtitle">Volumen actual en tiempo real (Capacidad máx: 750 L)</div>
+                        <div class="chart-wrapper">
+                            <canvas id="tankChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Gráfico Humedad del Suelo -->
                     <div class="dashboard-box">
-                        <div class="box-title">Humedad del suelo</div>
+                        <div class="box-title">Humedad del suelo (%)</div>
                         <div class="box-subtitle">Promedio diario del cultivo 1</div>
-                        <div class="chart-placeholder">
-                            <svg viewBox="0 0 500 100" style="width: 100%; height: 100%;">
-                                <path d="M 0,70 Q 100,30 200,40 T 400,35 T 500,45" fill="none" stroke="#a855f7" stroke-width="3"/>
-                                <circle cx="200" cy="40" r="4" fill="#a855f7"/>
-                                <circle cx="300" cy="50" r="4" fill="#a855f7"/>
-                                <circle cx="490" cy="45" r="4" fill="#a855f7"/>
-                            </svg>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 5px;">
-                                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span>
-                            </div>
+                        <div class="chart-wrapper">
+                            <canvas id="moistureChart"></canvas>
                         </div>
                     </div>
 
@@ -726,6 +703,112 @@
             </div>
         </section>
 
+        <!-- SECCIÓN: ARQUITECTURA IoT HÍBRIDA (SOLAR - EÓLICA) -->
+        <section id="arquitectura-iot" style="margin-top: 3rem;">
+            <h2 class="section-title">Arquitectura IoT: Riego Comunitario Híbrido</h2>
+            <p class="section-subtitle">Flujo completo desde los sensores del tanque, cultivo y generación eólica/solar hasta el bombeo y telemetría</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                
+                <!-- BLOQUE 1: SENSADO Y GENERACIÓN -->
+                <div class="dashboard-box" style="border-top: 4px solid var(--brand-celeste);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-microchip" style="color: #0284c7; font-size: 1.2rem;"></i>
+                        <h3 class="box-title" style="margin: 0;">1. Sensado y Energía Híbrida</h3>
+                    </div>
+                    
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-dot dot-blue"></div>
+                            <div class="activity-content">
+                                <strong>Nivel del depósito</strong>
+                                <p>Flotador o sensor ultrasónico · Protege la bomba contra trabajo en seco.</p>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-dot dot-purple"></div>
+                            <div class="activity-content">
+                                <strong>Humedad del suelo</strong>
+                                <p>Sensor capacitivo en cultivo · Solicita riego automatizado según umbral.</p>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-dot dot-wind"></div>
+                            <div class="activity-content">
+                                <strong>Anemómetro y Eólica</strong>
+                                <p>Mide velocidad del viento (m/s) y potencia generada (70W) en tiempo real.</p>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-dot dot-green"></div>
+                            <div class="activity-content">
+                                <strong>Estado eléctrico y Solar</strong>
+                                <p>Monitorea paneles solares (340W) y corriente del motor recuperado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE 2: CONTROL Y TELEMETRÍA (ESP32) -->
+                <div class="dashboard-box" style="border-top: 4px solid var(--brand-green-dark); background: #f8fafc;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-server" style="color: var(--brand-green-dark); font-size: 1.2rem;"></i>
+                        <h3 class="box-title" style="margin: 0;">2. Control y Telemetría</h3>
+                    </div>
+
+                    <div style="text-align: center; background: #0f172a; color: white; padding: 1.2rem; border-radius: 12px; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-wifi" style="color: var(--brand-celeste); font-size: 1.5rem; margin-bottom: 6px;"></i>
+                        <h4 style="color: var(--brand-celeste); font-size: 1.1rem; margin-bottom: 4px;">ESP32 Core</h4>
+                        <p style="font-size: 0.8rem; color: #94a3b8; text-transform: none;">Gestión lógica híbrida (Solar + Eólica) y Wi-Fi / MQTT</p>
+                    </div>
+
+                    <ul class="info-list" style="font-size: 0.8rem;">
+                        <li>Evaluación de umbrales energéticos y de humedad</li>
+                        <li>Gestión de carga de baterías con aporte eólico y solar</li>
+                        <li>Transmisión de datos hacia el panel web del usuario</li>
+                    </ul>
+                </div>
+
+                <!-- BLOQUE 3: ACCIÓN Y POTENCIA -->
+                <div class="dashboard-box" style="border-top: 4px solid var(--brand-green-lima);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-gears" style="color: var(--brand-green-lima); font-size: 1.2rem;"></i>
+                        <h3 class="box-title" style="margin: 0;">3. Acción y Riego</h3>
+                    </div>
+
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-dot dot-green"></div>
+                            <div class="activity-content">
+                                <strong>Etapa de potencia protegida</strong>
+                                <p>Interfaz aislada por relés/MOSFETs · El ESP32 conmuta de forma segura.</p>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-dot dot-blue"></div>
+                            <div class="activity-content">
+                                <strong>Motor recuperado adaptado</strong>
+                                <p>Acciona la bomba acoplada mecánicamente con soporte de energía híbrida.</p>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-dot dot-green"></div>
+                            <div class="activity-content">
+                                <strong>Riego por goteo activo</strong>
+                                <p>Distribución eficiente del agua hacia la Parcela 03 con parada automática.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
         <!-- 4. VIABILIDAD FINANCIERA -->
         <section id="viabilidad" style="margin-top: 3rem;">
             <h2 class="section-title">4. Viabilidad Financiera (MVP)</h2>
@@ -791,6 +874,111 @@
         <p>&copy; 2026 <strong>AquaMotriz</strong> (Equipo: AVOCADO | Sede: Jaguares)</p>
         <p style="margin-top: 4px; opacity: 0.8;">Desafío 01: Segunda vida de los motores eléctricos domésticos.</p>
     </footer>
+
+    <!-- SCRIPT DE CONFIGURACIÓN DE GRÁFICOS CON CHART.JS -->
+    <script>
+        // 1. Gráfico Nivel del Tanque (Litros)
+        const ctxTank = document.getElementById('tankChart').getContext('2d');
+        new Chart(ctxTank, {
+            type: 'line',
+            data: {
+                labels: ['06:00', '09:00', '12:00', '15:00', '18:00'],
+                datasets: [{
+                    label: 'Volumen de Agua',
+                    data: [350, 480, 510, 560, 600],
+                    borderColor: '#0284c7',
+                    backgroundColor: 'rgba(56, 189, 248, 0.25)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#0284c7',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let litros = context.parsed.y;
+                                let porcentaje = Math.round((litros / 750) * 100);
+                                return ` Volumen: ${litros} Litros (${porcentaje}% de 750L)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 750,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' L';
+                            }
+                        },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 2. Gráfico Humedad del Suelo (%)
+        const ctxMoisture = document.getElementById('moistureChart').getContext('2d');
+        new Chart(ctxMoisture, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+                datasets: [{
+                    label: 'Humedad del Suelo',
+                    data: [28, 35, 31, 29, 33],
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#a855f7',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` Humedad Promedio: ${context.parsed.y}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
